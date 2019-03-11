@@ -16,17 +16,19 @@ import java.util.Random;
 public class HashTableTest{
 
     // TODO: add other fields that will be used by multiple tests
+    HashTable<Integer, String>H1;
+    HashTable<String, String>H2;
     
     // TODO: add code that runs before each test method
-    @Before
-    public void setUp() throws Exception {
-
+    @Before public void setUp() throws Exception {
+        H1 = new HashTable<>(10, .75);
+        H2 = new HashTable<>(25, .25);
     }
 
     // TODO: add code that runs after each test method
-    @After
-    public void tearDown() throws Exception {
-
+    @After public void tearDown() throws Exception {
+        H1 = null;
+        H2 = null;
     }
     
     /** 
@@ -35,8 +37,7 @@ public class HashTableTest{
      * is used.
      * REFER TO HashTableADT for valid collision scheme codes.
      */
-    @Test
-    public void test000_collision_scheme() {
+    @Test public void test000_collision_scheme() {
         HashTableADT htIntegerKey = new HashTable<Integer,String>();
         int scheme = htIntegerKey.getCollisionResolution();
         if (scheme < 1 || scheme > 9) 
@@ -46,8 +47,7 @@ public class HashTableTest{
     /** IMPLEMENTED AS EXAMPLE FOR YOU
      * Tests that insert(null,null) throws IllegalNullKeyException
      */
-    @Test
-    public void test001_IllegalNullKey() {
+    @Test public void test001_IllegalNullKey() {
         try {
             HashTableADT htIntegerKey = new HashTable<Integer,String>();
             htIntegerKey.insert(null, null);
@@ -60,29 +60,24 @@ public class HashTableTest{
     }
 
     @Test public void test002_insert_basic() {
-        HashTable hashTable;
         try {
-            hashTable = new HashTable(10, .75);
-            hashTable.insert(1, "one");
-            hashTable.insert(2, "two");
-            hashTable.insert(3, "three");
-            hashTable.insert(4, "four");
-            hashTable.insert(5, "five");
+            H1.insert(1, "one");
+            H1.insert(2, "two");
+            H1.insert(3, "three");
+            H1.insert(4, "four");
+            H1.insert(5, "five");
 
-            if(hashTable.numKeys() != 5) {
+            if(H1.numKeys() != 5) {
                 fail("num keys is incorrect after inserting 5 items");
             }
 
-            if(hashTable.getLoadFactor() != .5) {
+            if(H1.getLoadFactor() != .5) {
                 fail("load factor is incorrect after inserting 5 items");
             }
 
-            if(!hashTable.get(1).equals("one")) {
+            if(!H1.get(1).equals("one")) {
                 fail("get did not return the correct value");
             }
-
-
-
         } catch (IllegalNullKeyException e) {
             fail("should not throw INK exception");
         } catch (DuplicateKeyException e) {

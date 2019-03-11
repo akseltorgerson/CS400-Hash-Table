@@ -36,7 +36,6 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         }
     }
 
-
     // TODO: comment and complete a default no-arg constructor
     public HashTable() {
         this(10, .75);
@@ -49,11 +48,10 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         this.capacity = initialCapacity;
         this.loadFactorThreshold = loadFactorThreshold;
         numKeys = 0;
-        ArrayList<ArrayList<HashNode>> hashTable = new ArrayList<ArrayList<HashNode>>(this.capacity);
+        hashTable = new ArrayList<ArrayList<HashNode>>(this.capacity);
         for(int i = 0; i < this.capacity; i++) {
             hashTable.add(i, new ArrayList<HashNode>());
         }
-        System.out.println(hashTable);
     }
 
     @Override public double getLoadFactorThreshold() {
@@ -61,7 +59,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
     }
 
     @Override public double getLoadFactor() {
-        return numKeys / capacity;
+        return (double)numKeys / capacity;
     }
 
     @Override public int getCapacity() {
@@ -78,9 +76,6 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
 
         int hashID = currentNode.key.hashCode();
         int hashIndex = Math.abs(hashID) % capacity;
-
-        // WHY IS THIS NULL WHEN ITS NOT IN THE CONSTRUCTOR
-        System.out.println(hashTable);
 
         for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
             if(hashTable.get(hashIndex).get(i).key.equals(currentNode.key)) {
