@@ -63,6 +63,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
     @Override public void insert(K key, V value) throws IllegalNullKeyException, DuplicateKeyException {
         if (key == null) { throw new IllegalNullKeyException(); }
         int hashID = key.hashCode();
+        // pls just testing
 
 
     }
