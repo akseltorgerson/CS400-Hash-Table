@@ -25,7 +25,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
     private double loadFactorThreshold;
     private int capacity;
     private int numKeys;
-    private ArrayList<ArrayList<K>> hashTable;
+    private ArrayList<ArrayList<HashNode>> hashTable;
 
     private class HashNode {
         private K key;
@@ -39,9 +39,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
 
     // TODO: comment and complete a default no-arg constructor
     public HashTable() {
-        this.capacity = 0; // when creating a ht with no arguments we will just set fields to 0
-        this.loadFactorThreshold = 0;
-        numKeys = 0;
+        this(10, .75);
     }
 
     // TODO: comment and complete a constructor that accepts
@@ -51,7 +49,10 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         this.capacity = initialCapacity;
         this.loadFactorThreshold = loadFactorThreshold;
         numKeys = 0;
-        ArrayList<ArrayList<K>> hashTable = new ArrayList<ArrayList<K>>(initialCapacity);
+        ArrayList<ArrayList<HashNode>> hashTable = new ArrayList<ArrayList<HashNode>>(this.capacity);
+        for(int i = 0; i < this.capacity; i++) {
+            hashTable.add(i, new ArrayList<HashNode>());
+        }
     }
 
     @Override public double getLoadFactorThreshold() {
@@ -74,32 +75,84 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         if (key == null) { throw new IllegalNullKeyException(); }
         HashNode currentNode = new HashNode(key, value);
 
-        int hashID = currentNode.hashCode();
-        int hashIndex = getCapacity() % hashID;
+        int hashID = currentNode.key.hashCode();
+        int hashIndex = Math.abs(hashID) % capacity;
 
+        //System.out.println(hashID);
+        System.out.println(this.getTable().size());
+        System.out.println(hashTable.get(hashIndex).size());
 
+        for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
+            if(hashTable.get(hashIndex).get(i).key.equals(currentNode.key)) {
+                throw new DuplicateKeyException();
+            }
+        }
 
+        hashTable.get(hashIndex).add(currentNode);
+        numKeys++;
 
-        //hashTable.get()
+        // must check if were at the load factor yet
+        if (this.getLoadFactor() >= loadFactorThreshold) {
+            expandTable();
+        }
+    }
 
+    private void expandTable() throws IllegalNullKeyException, DuplicateKeyException {
+        // make the new table that were going to put all the values in
+        HashTable newTable = new HashTable((capacity * 2) + 1, loadFactorThreshold);
+        for(int i = 0; i < capacity; i++) {
+            for(int j = 0; j < hashTable.get(i).size(); j++) {
+                HashNode node = hashTable.get(i).get(j);
 
+                newTable.insert(node.key, node.value);
+            }
+        }
+        this.hashTable = newTable.hashTable; // update our hashTable to point to the new one
+        this.capacity = (capacity * 2) + 1; // update the capacity of our new table
     }
 
     @Override public boolean remove(K key) throws IllegalNullKeyException {
         if (key == null) { throw new IllegalNullKeyException(); }
 
+        int hashID = key.hashCode();
+        int hashIndex = Math.abs(hashID) % capacity;
 
-
-
+        // loop through the bucket to see if any of the keys are the same
+        for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
+            if(hashTable.get(hashIndex).get(i).key.equals(key)) {
+                // cool cool we found the key, now just remove it
+                hashTable.get(hashIndex).remove(i);
+                numKeys--;
+                return true;
+            }
+        }
+        // if we looked through the bucket the key should hash to, and we didn't find a match
         return false;
     }
 
     @Override public V get(K key) throws IllegalNullKeyException, KeyNotFoundException {
-        return null;
+        if (key == null) { throw new IllegalNullKeyException(); }
+
+        int hashID = key.hashCode();
+        int hashIndex = Math.abs(hashID) % capacity;
+
+        // do the same thing as remove basically
+        for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
+            if(hashTable.get(hashIndex).get(i).key.equals(key)) {
+                // cool cool we found the key, now just return the value
+                return hashTable.get(hashIndex).get(i).value;
+            }
+        }
+        // throw this if we didn't locate the key
+        throw new KeyNotFoundException();
     }
 
     @Override public int numKeys() {
         return numKeys;
+    }
+
+    public ArrayList<ArrayList<HashNode>> getTable() {
+        return hashTable;
     }
 
     // TODO: add all unimplemented methods so that the class can compile

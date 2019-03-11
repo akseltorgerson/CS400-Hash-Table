@@ -58,6 +58,45 @@ public class HashTableTest{
             fail("insert null key should not throw exception "+e.getClass().getName());
         }
     }
+
+    @Test public void test002_insert_basic() {
+        HashTable hashTable;
+        try {
+            hashTable = new HashTable(10, .75);
+            hashTable.insert(1, "one");
+            hashTable.insert(2, "two");
+            hashTable.insert(3, "three");
+            hashTable.insert(4, "four");
+            hashTable.insert(5, "five");
+
+            if(hashTable.numKeys() != 5) {
+                fail("num keys is incorrect after inserting 5 items");
+            }
+
+            if(hashTable.getLoadFactor() != .5) {
+                fail("load factor is incorrect after inserting 5 items");
+            }
+
+            if(!hashTable.get(1).equals("one")) {
+                fail("get did not return the correct value");
+            }
+
+
+
+        } catch (IllegalNullKeyException e) {
+            fail("should not throw INK exception");
+        } catch (DuplicateKeyException e) {
+            fail("should not throw DK exception");
+        } catch(KeyNotFoundException e) {
+            fail("should not throw KNF exception");
+        }
+
+
+
+
+
+
+    }
     
     // TODO add your own tests of your implementation
     
