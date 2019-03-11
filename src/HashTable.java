@@ -53,6 +53,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         for(int i = 0; i < this.capacity; i++) {
             hashTable.add(i, new ArrayList<HashNode>());
         }
+        System.out.println(hashTable);
     }
 
     @Override public double getLoadFactorThreshold() {
@@ -78,9 +79,8 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         int hashID = currentNode.key.hashCode();
         int hashIndex = Math.abs(hashID) % capacity;
 
-        //System.out.println(hashID);
-        System.out.println(this.getTable().size());
-        System.out.println(hashTable.get(hashIndex).size());
+        // WHY IS THIS NULL WHEN ITS NOT IN THE CONSTRUCTOR
+        System.out.println(hashTable);
 
         for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
             if(hashTable.get(hashIndex).get(i).key.equals(currentNode.key)) {
