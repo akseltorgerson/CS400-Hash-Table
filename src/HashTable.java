@@ -25,6 +25,16 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
     private double loadFactorThreshold;
     private int capacity;
     private int numKeys;
+    private ArrayList<ArrayList<K>> hashTable;
+
+    private class HashNode {
+        private K key;
+        private V value;
+        HashNode(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
 
 
     // TODO: comment and complete a default no-arg constructor
@@ -41,7 +51,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         this.capacity = initialCapacity;
         this.loadFactorThreshold = loadFactorThreshold;
         numKeys = 0;
-        ArrayList<K> hashTable = new ArrayList<K>(capacity); // were using an array list to store keys
+        ArrayList<ArrayList<K>> hashTable = new ArrayList<ArrayList<K>>(initialCapacity);
     }
 
     @Override public double getLoadFactorThreshold() {
@@ -57,13 +67,20 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
     }
 
     @Override public int getCollisionResolution() {
-        return 1;
+        return 4;
     }
 
     @Override public void insert(K key, V value) throws IllegalNullKeyException, DuplicateKeyException {
         if (key == null) { throw new IllegalNullKeyException(); }
-        int hashID = key.hashCode();
-        // pls just test
+        HashNode currentNode = new HashNode(key, value);
+
+        int hashID = currentNode.hashCode();
+        int hashIndex = getCapacity() % hashID;
+
+
+
+
+        //hashTable.get()
 
 
     }
