@@ -20,7 +20,9 @@
 //
 /////////////////////////////// 80 COLUMNS WIDE ///////////////////////////////
 
-/** COLLISION RESOLUTION SCHEME **/
+/**
+ * COLLISION RESOLUTION SCHEME  HASHING ALGORITHM
+ **/
 // For my collision resolution scheme I chose to use buckets. I implemented
 // them using an ArrayList.
 
@@ -54,6 +56,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
     private class HashNode {
         private K key;
         private V value;
+
         HashNode(K key, V value) {
             this.key = key;
             this.value = value;
@@ -83,7 +86,7 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         numKeys = 0;
         // instantiate hashTable with an array list of array list of hash nodes
         hashTable = new ArrayList<ArrayList<HashNode>>(this.capacity);
-        for(int i = 0; i < this.capacity; i++) {
+        for (int i = 0; i < this.capacity; i++) {
             // for every spot in the hashTable create a bucket in that spot
             hashTable.add(i, new ArrayList<HashNode>());
         }
@@ -93,7 +96,8 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
      * Getter for the loadFactorThreshold
      * @return loadFactorThreshold
      */
-    @Override public double getLoadFactorThreshold() {
+    @Override
+    public double getLoadFactorThreshold() {
         return loadFactorThreshold;
     }
 
@@ -101,19 +105,26 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
      * Calculates and returns the load factor
      * @returns the load factor the hash table
      */
-    @Override public double getLoadFactor() {
-        return (double)numKeys / capacity;
+    @Override
+    public double getLoadFactor() {
+        return (double) numKeys / capacity;
     }
 
     /**
      * Getter for the capacity
      * @returns the capacity
      */
-    @Override public int getCapacity() {
+    @Override
+    public int getCapacity() {
         return capacity;
     }
 
-    @Override public int getCollisionResolution() {
+    /**
+     * A simple method to return an int that describes your collision resolution scheme
+     * @returns an integer representation of your collision resolution scheme
+     */
+    @Override
+    public int getCollisionResolution() {
         return 4;
     }
 
@@ -126,11 +137,14 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
      * @throws IllegalNullKeyException
      * @throws DuplicateKeyException
      */
-    @Override public void insert(K key, V value)
-        throws IllegalNullKeyException, DuplicateKeyException {
+    @Override
+    public void insert(K key, V value)
+            throws IllegalNullKeyException, DuplicateKeyException {
 
         // if the key is null throw an INK exception
-        if (key == null) { throw new IllegalNullKeyException(); }
+        if (key == null) {
+            throw new IllegalNullKeyException();
+        }
 
         // create a new node with the key and value pair that needs to be inserted
         HashNode currentNode = new HashNode(key, value);
@@ -140,48 +154,67 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         int hashIndex = Math.abs(hashID) % capacity;
 
         // after we find the hashIndex, we need to check that bucket to see if that key is there
-        for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
-            if(hashTable.get(hashIndex).get(i).key.equals(currentNode.key)) {
+        for (int i = 0; i < hashTable.get(hashIndex).size(); i++) {
+            if (hashTable.get(hashIndex).get(i).key.equals(currentNode.key)) {
                 // throw a dupe key exception if they keys are equal
                 throw new DuplicateKeyException();
             }
         }
 
+        // if we didn't find a duplicate key then go ahead and add the KV node to the bucket
         hashTable.get(hashIndex).add(currentNode);
-        numKeys++;
+        numKeys++; // increase num keys to keep track of how many items you have
 
         // must check if were at the load factor yet
         if (this.getLoadFactor() >= loadFactorThreshold) {
+            // if we exceed that value, expand the table and rehash
             expandTable();
         }
     }
 
+    /**
+     * This method expands the hash table and rehashes all of the values
+     * @throws IllegalNullKeyException because this method uses insert, we must throw on this exception
+     * @throws DuplicateKeyException same reason as INK exception, need to throw this on
+     */
     private void expandTable() throws IllegalNullKeyException, DuplicateKeyException {
-        // make the new table that were going to put all the values in
+        // make the new table that were going to put all the values in with capacity * 2 + 1
         HashTable newTable = new HashTable((capacity * 2) + 1, loadFactorThreshold);
-        for(int i = 0; i < capacity; i++) {
-            for(int j = 0; j < hashTable.get(i).size(); j++) {
-                HashNode node = hashTable.get(i).get(j);
 
-                newTable.insert(node.key, node.value);
+        // must loop through all the KV pairs in the table
+        for (int i = 0; i < capacity; i++) {
+            for (int j = 0; j < hashTable.get(i).size(); j++) {
+                // insert the key value pair into the new hash table
+                newTable.insert(hashTable.get(i).get(j).key, hashTable.get(i).get(j).value);
             }
         }
         this.hashTable = newTable.hashTable; // update our hashTable to point to the new one
         this.capacity = (capacity * 2) + 1; // update the capacity of our new table
     }
 
-    @Override public boolean remove(K key) throws IllegalNullKeyException {
-        if (key == null) { throw new IllegalNullKeyException(); }
+    /**
+     * This method removes a key from the HashTable
+     * @param key is the key that is being removed
+     * @returns a boolean if the remove method failed or passed
+     * @throws IllegalNullKeyException if someone wants to remove a null key
+     */
+    @Override
+    public boolean remove(K key) throws IllegalNullKeyException {
+        // if the key is null throw the exception
+        if (key == null) {
+            throw new IllegalNullKeyException();
+        }
 
-        int hashID = key.hashCode();
-        int hashIndex = Math.abs(hashID) % capacity;
+        // we need to find the hash table index of the value
+        int hashID = key.hashCode(); // get the hashCode
+        int hashIndex = Math.abs(hashID) % capacity; // mod it with the table size to find the hashIndex
 
         // loop through the bucket to see if any of the keys are the same
-        for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
-            if(hashTable.get(hashIndex).get(i).key.equals(key)) {
+        for (int i = 0; i < hashTable.get(hashIndex).size(); i++) {
+            if (hashTable.get(hashIndex).get(i).key.equals(key)) {
                 // cool cool we found the key, now just remove it
                 hashTable.get(hashIndex).remove(i);
-                numKeys--;
+                numKeys--; // remember to decrease the key count!
                 return true;
             }
         }
@@ -189,15 +222,27 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         return false;
     }
 
-    @Override public V get(K key) throws IllegalNullKeyException, KeyNotFoundException {
-        if (key == null) { throw new IllegalNullKeyException(); }
+    /**
+     * This is the method to get a key from the table, this DOES NOT remove it
+     * @param key this is the key that you want to get the corresponding value from
+     * @returns the value associated with the key
+     * @throws IllegalNullKeyException
+     * @throws KeyNotFoundException
+     */
+    @Override
+    public V get(K key) throws IllegalNullKeyException, KeyNotFoundException {
+        // if the key is null throw INK exception
+        if (key == null) {
+            throw new IllegalNullKeyException();
+        }
 
+        // similarly to remove, we need to get the hashIndex for the key inorder to locate it
         int hashID = key.hashCode();
         int hashIndex = Math.abs(hashID) % capacity;
 
         // do the same thing as remove basically
-        for(int i = 0; i < hashTable.get(hashIndex).size(); i++) {
-            if(hashTable.get(hashIndex).get(i).key.equals(key)) {
+        for (int i = 0; i < hashTable.get(hashIndex).size(); i++) {
+            if (hashTable.get(hashIndex).get(i).key.equals(key)) {
                 // cool cool we found the key, now just return the value
                 return hashTable.get(hashIndex).get(i).value;
             }
@@ -206,16 +251,20 @@ public class HashTable<K extends Comparable<K>, V> implements HashTableADT<K, V>
         throw new KeyNotFoundException();
     }
 
-    @Override public int numKeys() {
+    /**
+     * This is a getter method for numKeys
+     * @returns the number of keys in the table
+     */
+    @Override
+    public int numKeys() {
         return numKeys;
     }
 
+    /**
+     * A getter method that returns the hashTable
+     * @returns the hashTable
+     */
     public ArrayList<ArrayList<HashNode>> getTable() {
         return hashTable;
     }
-
-    // TODO: add all unimplemented methods so that the class can compile
-
-
-
 }
